@@ -2,6 +2,10 @@ from autograd import elementwise_grad
 from autograd import numpy as np
 
 
+# Eade, Ethan. "Gauss-newton/levenberg-marquardt optimization." Tech. Rep. (2013).
+# http://ethaneade.com/optimization.pdf
+
+
 class BaseRobustifier(object):
     def robustify(self, x):
         raise NotImplementedError()
@@ -25,6 +29,26 @@ class BaseRobustifier(object):
 class SquaredRobustifier(BaseRobustifier):
     def robustify(self, x):
         return np.power(x, 2)
+
+
+def huber_(x, k):
+    k2 = k * k
+    if x < k2:
+        return x
+    return 2 * k * np.sqrt(x) - k2
+
+
+class HuberRobustifier(BaseRobustifier):
+    def __init__(self, k):
+        assert(k > 0)
+        self.k = k
+
+    def robustify(self, errors):
+        # Take weigthed quadratic error such that
+        # errors[i] = e_i.T * W * e_i, e_i = (x_pred[i] - x_true[i])
+        assert(np.all(errors >= 0.0))
+        # we need to do this to calculate grad
+        return np.array([huber_(v, self.k) for v in errors])
 
 
 class GemanMcClureRobustifier(BaseRobustifier):
