@@ -28,6 +28,7 @@ function(add_testcase filepath)
 endfunction()
 
 set(TEST_FILES tests/test_curvature.cpp)
+enable_testing()
 
 foreach(filepath ${TEST_FILES})
   add_testcase(${filepath})
