@@ -12,7 +12,12 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(include)
 
-add_library(curvature_lib src/curvature.cpp)
+set(LIB_FILES
+  src/curvature.cpp
+  src/keypoint.cpp
+)
+
+add_library(curvature_lib ${LIB_FILES})
 add_executable(curvature src/main.cpp)
 
 target_link_libraries(curvature_lib ${OpenCV_LIBS} ${GTEST_LIBRARIES} Eigen3::Eigen)
@@ -27,7 +32,9 @@ function(add_testcase filepath)
   gtest_discover_tests(${test_name})
 endfunction()
 
-set(TEST_FILES tests/test_curvature.cpp)
+set(TEST_FILES
+  tests/test_curvature.cpp)
+
 enable_testing()
 
 foreach(filepath ${TEST_FILES})
