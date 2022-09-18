@@ -1,9 +1,10 @@
+// Copyright 2022 Takeshi Ishita
+
 #include <gtest/gtest.h>
 
 #include "curvature.hpp"
 
-TEST(Curvature, Derivatives)
-{
+TEST(Curvature, Derivatives) {
   Eigen::Matrix3d I;
   I <<
     2, 6, 3,
@@ -18,8 +19,7 @@ TEST(Curvature, Derivatives)
 }
 
 
-TEST(Curvature, ComputeCurvature)
-{
+TEST(Curvature, ComputeCurvature) {
   const double fx = 2.;
   const double fy = 3.;
   const double fxx = 4.;
@@ -30,8 +30,7 @@ TEST(Curvature, ComputeCurvature)
     fy * fy * fxx - 2 * fx * fy * fxfy + fx * fx * fyy);
 }
 
-TEST(Curvature, Extrema)
-{
+TEST(Curvature, Extrema) {
   Eigen::MatrixXd I(4, 5);
   I <<
     2, 6, 3, 5, 4,

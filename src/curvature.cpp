@@ -1,8 +1,9 @@
+// Copyright 2022 Takeshi Ishita
+
 #include "curvature.hpp"
 #include <Eigen/Core>
 
-Eigen::MatrixXd curvature_extrema(const Eigen::MatrixXd & image)
-{
+Eigen::MatrixXd curvature_extrema(const Eigen::MatrixXd & image) {
   Eigen::MatrixXd curvature(image.rows()-2, image.cols()-2);
 
   for (int y = 1; y < image.rows()-1; y++) {

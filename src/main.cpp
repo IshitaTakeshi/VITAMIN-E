@@ -1,26 +1,28 @@
-#include "curvature.hpp"
-
-#include <iostream>
+// Copyright 2022 Takeshi Ishita
 
 #include <Eigen/Core>
 
-#include <opencv2/core/eigen.hpp>
-#include <opencv2/opencv.hpp>
-#include <opencv2/features2d.hpp>
+#include <iostream>
 
+#include <opencv2/core/eigen.hpp>
+#include <opencv2/features2d.hpp>
+#include <opencv2/opencv.hpp>
+
+#include "curvature.hpp"
+#include "matching.hpp"
 
 std::vector<std::vector<cv::DMatch>> match(
   const cv::Mat & descriptors1,
-  const cv::Mat & descriptors2)
-{
+  const cv::Mat & descriptors2) {
   std::vector<std::vector<cv::DMatch>> matches;
-  cv::BFMatcher(cv::NORM_HAMMING).knnMatch(descriptors1, descriptors2, matches, 2);
+  const cv::BFMatcher matcher(cv::NORM_HAMMING);
+  matcher.knnMatch(descriptors1, descriptors2, matches, 2);
   return matches;
 }
 
 std::vector<cv::DMatch> filter_by_match_distance(
-  const std::vector<std::vector<cv::DMatch>> & matches12, const double distance_ratio)
-{
+  const std::vector<std::vector<cv::DMatch>> & matches12,
+  const double distance_ratio) {
   std::vector<cv::DMatch> good_matches;
   for (size_t i = 0; i < matches12.size(); ++i) {
       const double d1 = matches12[i][0].distance;
@@ -32,11 +34,11 @@ std::vector<cv::DMatch> filter_by_match_distance(
   return good_matches;
 }
 
-std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point2f>> matched_keypoints(
+std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point2f>>
+matched_keypoints(
   const std::vector<cv::KeyPoint> & keypoints1,
   const std::vector<cv::KeyPoint> & keypoints2,
-  const std::vector<cv::DMatch> & matches12)
-{
+  const std::vector<cv::DMatch> & matches12) {
   std::vector<cv::Point2f> matched1;
   std::vector<cv::Point2f> matched2;
   for (size_t i = 0; i < matches12.size(); i++) {
@@ -46,8 +48,7 @@ std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point2f>> matched_keypoints
   return std::make_tuple(matched1, matched2);
 }
 
-std::tuple<std::vector<cv::KeyPoint>, cv::Mat> extract(const cv::Mat & image)
-{
+std::tuple<std::vector<cv::KeyPoint>, cv::Mat> extract(const cv::Mat & image) {
   const cv::Ptr<cv::BRISK> extractor = cv::BRISK::create();
   std::vector<cv::KeyPoint> keypoints;
   cv::Mat descriptors;
@@ -55,10 +56,11 @@ std::tuple<std::vector<cv::KeyPoint>, cv::Mat> extract(const cv::Mat & image)
   return std::make_tuple(keypoints, descriptors);
 }
 
-int main()
-{
-  const cv::Mat cvimage1 = cv::imread("einstein_1/rgb/5390.470225.png", cv::IMREAD_GRAYSCALE);
-  const cv::Mat cvimage2 = cv::imread("einstein_1/rgb/5390.875722.png", cv::IMREAD_GRAYSCALE);
+int main() {
+  const std::string filename0 = "einstein_1/rgb/5390.470225.png";
+  const std::string filename1 = "einstein_1/rgb/5390.875722.png";
+  const cv::Mat cvimage1 = cv::imread(filename0, cv::IMREAD_GRAYSCALE);
+  const cv::Mat cvimage2 = cv::imread(filename1, cv::IMREAD_GRAYSCALE);
 
   std::cout << "image1.type = " << cvimage1.type() << std::endl;
   std::cout << "image2.type = " << cvimage1.type() << std::endl;
@@ -69,8 +71,10 @@ int main()
   const auto matches12 = match(descriptors1, descriptors2);
   const auto good_matches12 = filter_by_match_distance(matches12, 0.75);
   std::cout << "matches12.size() == " << matches12.size() << std::endl;
-  std::cout << "good_matches12.size() == " << good_matches12.size() << std::endl;
-  const auto [matched1, matched2] = matched_keypoints(keypoints1, keypoints2, good_matches12);
+  std::cout << "good_matches12.size() == "
+            << good_matches12.size() << std::endl;
+  const auto [matched1, matched2] = matched_keypoints(
+    keypoints1, keypoints2, good_matches12);
 
   cv::Mat image_matches;
   cv::drawMatches(
