@@ -10,6 +10,7 @@
 
 #include "curvature.hpp"
 #include "keypoint.hpp"
+#include "vector.hpp"
 
 int main() {
   const std::string filename0 = "einstein_1/rgb/5390.470225.png";
@@ -24,16 +25,17 @@ int main() {
   const auto [keypoints2, descriptors2] = extract(cvimage2);
 
   const auto matches12 = match(descriptors1, descriptors2);
-  const auto good_matches12 = filter_by_match_distance(matches12, 0.75);
-  std::cout << "matches12.size() == " << matches12.size() << std::endl;
-  std::cout << "good_matches12.size() == "
-            << good_matches12.size() << std::endl;
-  const auto [matched1, matched2] = matched_keypoints(
-    keypoints1, keypoints2, good_matches12);
+  const auto good_indices = good_match_indices(matches12, 0.75);
+  const auto matches1 = get_match0(matches12);
+  const auto good_matches1 = get_by_indices(matches1, good_indices);
+  const auto [indices1, indices2] = as_integers(good_matches1);
+  const auto matched1 = get_as_references(keypoints1, indices1);
+  const auto matched2 = get_as_references(keypoints2, indices2);
 
   cv::Mat image_matches;
   cv::drawMatches(
-      cvimage1, keypoints1, cvimage2, keypoints2, good_matches12, image_matches,
+      cvimage1, keypoints1, cvimage2, keypoints2,
+      good_matches1, image_matches,
       cv::Scalar::all(-1), cv::Scalar::all(-1),
       std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
   cv::imshow("Good Matches & Object detection", image_matches);

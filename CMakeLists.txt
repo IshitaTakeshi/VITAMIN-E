@@ -2,7 +2,16 @@ cmake_minimum_required(VERSION 3.14)
 
 project(curvature)
 
-add_compile_options(-pg -g -O3 -Wall -Wextra -Wpedantic -Werror)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_CPPLINT "cpplint")
+
+## add_compile_options(
+##   -pg -g -O3 -Wall -Wextra -Wpedantic -Werror --coverage -fprofile-arcs -ftest-coverage)
+
+set(DEFAULT_COMPILER_FLAGS "-pg -g -O0 -Wall -Wextra -Wpedantic -Werror")
+set(CMAKE_CXX_FLAGS "${DEFAULT_COMPILER_FLAGS} -fprofile-arcs -ftest-coverage")
+set(CMAKE_C_FLAGS "${DEFAULT_COMPILER_FLAGS} -W -fprofile-arcs -ftest-coverage")
+set(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(OpenCV REQUIRED)
@@ -28,12 +37,15 @@ function(add_testcase filepath)
   string(REGEX REPLACE ".cpp" "" test_name ${filename})
 
   add_executable(${test_name} ${filepath})
-  target_link_libraries(${test_name} curvature_lib GTest::gtest_main)
+  target_link_libraries(
+    ${test_name} curvature_lib GTest::gtest_main GTest::gmock_main)
   gtest_discover_tests(${test_name})
 endfunction()
 
 set(TEST_FILES
-  tests/test_curvature.cpp)
+  tests/test_curvature.cpp
+  tests/test_keypoint.cpp
+  tests/test_vector.cpp)
 
 enable_testing()
 

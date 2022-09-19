@@ -21,30 +21,36 @@ std::vector<std::vector<cv::DMatch>> match(
   return matches;
 }
 
-std::vector<cv::DMatch> filter_by_match_distance(
-  const std::vector<std::vector<cv::DMatch>> & matches12,
+std::vector<int> good_match_indices(
+  const std::vector<std::vector<cv::DMatch>> & matches,
   const double distance_ratio) {
-  std::vector<cv::DMatch> good_matches;
-  for (size_t i = 0; i < matches12.size(); ++i) {
-      const double d1 = matches12[i][0].distance;
-      const double d2 = matches12[i][1].distance;
-      if (d1 <= d2 * distance_ratio) {
-          good_matches.push_back(matches12[i][0]);
-      }
+  std::vector<int> indices;
+  for (size_t i = 0; i < matches.size(); ++i) {
+    const double d0 = matches[i][0].distance;
+    const double d1 = matches[i][1].distance;
+    if (d0 < d1 * distance_ratio) {
+      indices.push_back(i);
+    }
   }
-  return good_matches;
+  return indices;
 }
 
-std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point2f>>
-matched_keypoints(
-  const std::vector<cv::KeyPoint> & keypoints1,
-  const std::vector<cv::KeyPoint> & keypoints2,
-  const std::vector<cv::DMatch> & matches12) {
-  std::vector<cv::Point2f> matched1;
-  std::vector<cv::Point2f> matched2;
-  for (size_t i = 0; i < matches12.size(); i++) {
-    matched1.push_back(keypoints1[matches12[i].queryIdx].pt);
-    matched2.push_back(keypoints2[matches12[i].trainIdx].pt);
+std::vector<cv::DMatch> get_match0(
+  const std::vector<std::vector<cv::DMatch>> & matches) {
+  std::vector<cv::DMatch> m;
+  for (size_t i = 0; i < matches.size(); i++) {
+    m.push_back(matches[i][0]);
   }
-  return std::make_tuple(matched1, matched2);
+  return m;
+}
+
+std::pair<std::vector<int>, std::vector<int>> as_integers(
+  const std::vector<cv::DMatch> & matches) {
+  std::vector<int> indices1;
+  std::vector<int> indices2;
+  for (const auto & m : matches) {
+    indices1.push_back(m.queryIdx);
+    indices2.push_back(m.trainIdx);
+  }
+  return std::make_pair(indices1, indices2);
 }
