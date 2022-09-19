@@ -38,31 +38,7 @@ int main() {
       std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
   cv::imshow("Good Matches & Object detection", image_matches);
 
-  const cv::Mat H = cv::findHomography(matched1, matched2, cv::RANSAC);
-
-  std::vector<cv::Point2f> obj_corners(4);
-  obj_corners[0] = cv::Point2f(0, 0);
-  obj_corners[1] = cv::Point2f( (float)cvimage1.cols, 0 );
-  obj_corners[2] = cv::Point2f( (float)cvimage1.cols, (float)cvimage1.rows );
-  obj_corners[3] = cv::Point2f( 0, (float)cvimage1.rows );
-  std::vector<cv::Point2f> scene_corners(4);
-  perspectiveTransform(obj_corners, scene_corners, H);
-
-  //-- Draw lines between the corners (the mapped object in the scene - image_2 )
-  cv::line(
-      image_matches, scene_corners[0] + cv::Point2f((float)cvimage1.cols, 0),
-      scene_corners[1] + cv::Point2f((float)cvimage1.cols, 0), cv::Scalar(0, 255, 0), 4);
-  cv::line(
-      image_matches, scene_corners[1] + cv::Point2f((float)cvimage1.cols, 0),
-      scene_corners[2] + cv::Point2f((float)cvimage1.cols, 0), cv::Scalar( 0, 255, 0), 4);
-  cv::line(
-      image_matches, scene_corners[2] + cv::Point2f((float)cvimage1.cols, 0),
-      scene_corners[3] + cv::Point2f((float)cvimage1.cols, 0), cv::Scalar( 0, 255, 0), 4);
-  cv::line(
-      image_matches, scene_corners[3] + cv::Point2f((float)cvimage1.cols, 0),
-      scene_corners[0] + cv::Point2f((float)cvimage1.cols, 0), cv::Scalar( 0, 255, 0), 4);
-  //-- Show detected matches
-  cv::imshow("Good Matches & Object detection", image_matches);
+  // const cv::Mat H = cv::findHomography(matched1, matched2, cv::RANSAC);
 
   Eigen::MatrixXd image1, image2;
   cv::cv2eigen(cvimage1, image1);
